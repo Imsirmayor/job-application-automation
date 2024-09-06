@@ -20,7 +20,7 @@ This repository contains a Python-based solution to automate the job application
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/job-application-automation.git
+   git clone https://github.com/imsirmayor/job-application-automation.git
    ```
 
 2. Install the required packages:
