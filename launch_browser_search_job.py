@@ -1,28 +1,29 @@
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-username = "replace_with_actual_email"
-password = "replace_with_actual_password"
+username = "replace"
+password = "replace"
 
-# driver = webdriver.Firefox()  uncommemt this line, comment chrome webriver to use fireforx
-driver = webdriver.Chrome("chromedriver")  # Change this to the appropriate WebDriver for your browser
-driver.get("https://linkedin.com/login")  # Replace with the desired URL
-driver.find_element("id", "login_field").send_keys(username)
-driver.find_element("id", "password").send_keys(password)
-driver.find_element("name", "commit").click()
+# Initialize the WebDriver (Chrome in this case)
+driver = webdriver.Chrome()
+# driver = webdriver.Firefox()
+# Navigate to LinkedIn login page
+driver.get("https://linkedin.com/login")
 
+# Wait until the username field is present and then input the username
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "username"))).send_keys(username)
 
-# Examples of browser actions
-driver.refresh()  # Refresh the current page
+# Input the password
+driver.find_element(By.ID, "password").send_keys(password)
 
+# Click the login button
+driver.find_element(By.XPATH, "//button[@type='submit']").click()
 
-driver.back()  # Navigate back to the previous page
-driver.forward()  # Navigate forward to the next page
+# Pause to keep the browser open for review
+input("Press Enter to close the browser...")
 
-
-
-
-# input("Press Enter to close the browser...")
-# driver.quit()
+# Close the browser
+driver.quit()
