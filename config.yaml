@@ -1,0 +1,35 @@
+# Configuration for LinkedIn job search automation
+linkedin:
+  username: "replace"
+  password: "replace"
+
+remote: true  # True for remote jobs, False otherwise
+
+experienceLevel:
+  - "Entry level"
+  - "Associate"
+  - "Mid-Senior level"
+  - "Intern"
+
+jobTypes:
+  - "Full-time"
+  - "Part-time"
+  - "Contract"
+
+positions:
+  - "Test Enginer Intern"
+  - "Data Scientist"
+  - "DevOps Engineer"
+
+locations:
+  - "Austria"
+  - "United Kingdom"
+
+distance: 100  # Distance in miles for job search
+
+companyBlacklist:
+  - "Ams-Osram"
+  - "Magna"
+
+titleBlacklist:
+  - "Junior"
