@@ -6,6 +6,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 
 # Function to load credentials from the YAML file
 def load_credentials(file_path='config.yaml'):
@@ -17,14 +19,13 @@ credentials = load_credentials()
 username = credentials['linkedin']['username']
 password = credentials['linkedin']['password']
 
-# Initialize the WebDriver (Chrome in this case)
-# driver = webdriver.Chrome()
-driver = webdriver.Firefox()
+# Initialize the WebDriver (using Firefox in this case)
+# driver = webdriver.Firefox()
+driver = webdriver.Chrome()
 driver.maximize_window()
 
 # Navigate to LinkedIn login page
 driver.get("https://linkedin.com/login")
-
 driver.implicitly_wait(15)
 
 # Wait until the username field is present and then input the username
@@ -38,32 +39,28 @@ driver.find_element(By.XPATH, "//button[@type='submit']").click()
 
 driver.implicitly_wait(15)
 
-# function to search for jobs
-# Go to Jobs
-jobs_link = driver.find_element(By.LINK_TEXT, 'Jobs')
-jobs_link.click()
+def scroll_down(driver, num):
+    body_elem = driver.find_element(By.TAG_NAME, "body")
+    for _ in range(num):
+        body_elem.send_keys(Keys.PAGE_DOWN)
+        time.sleep(0.1)  # Add a small delay to ensure the page loads
 
-# Search based on keywords and location and hit enter
-search_keywords = driver.find_element(By.CSS_SELECTOR, ".jobs-search-box__text-input[aria-label='Search jobs']")
-search_keywords.clear()
-search_keywords.send_keys(self.keywords)
+SCROLL_PAUSE_TIME = 10
+prev_height = driver.execute_script("return document.body.scrollHeight")
 
-search_location = driver.find_element(By.CSS_SELECTOR, ".jobs-search-box__text-input[aria-label='Search location']")
-search_location.clear()
-search_location.send_keys(self.location)
-search_location.send_keys(Keys.RETURN)
-
+# Scroll down in a loop
+for i in range(0, 500):
+    scroll_down(driver, 1)
+    time.sleep(SCROLL_PAUSE_TIME)  # Wait to allow new items to load
+    
+    # Get the new scroll height and compare with the previous one
+    new_height = driver.execute_script("return document.body.scrollHeight")
+    if new_height == prev_height and i > 0:
+        break
+    prev_height = new_height
 
 # Pause to keep the browser open for review
 input("Press Enter to close the browser...")
 
 # Close the browser
 driver.quit()
-
-
-
-
-
-
-
-

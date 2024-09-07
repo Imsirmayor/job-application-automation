@@ -1,0 +1,268 @@
+# import yaml
+# import time
+# from selenium import webdriver
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver.chrome.options import Options
+# from selenium.webdriver.support.ui import WebDriverWait
+# from selenium.webdriver.support import expected_conditions as EC
+# from selenium.webdriver.common.keys import Keys
+# from selenium.common.exceptions import NoSuchElementException
+# from selenium.webdriver.common.action_chains import ActionChains
+# from selenium.webdriver.common.action_chains import ScrollOrigin
+
+# # Function to load configuration from the YAML file
+# def load_config(file_path='config.yaml'):
+#     with open(file_path, 'r') as file:
+#         return yaml.safe_load(file)
+
+# # Load configuration from YAML file
+# config = load_config()
+# username = config['linkedin']['username']
+# password = config['linkedin']['password']
+# job_types = config['jobTypes']
+# locations = config['locations']
+# positions = config['positions']
+# experience_levels = config['experienceLevel']
+
+# # Initialize the WebDriver (Chrome in this case)
+# driver = webdriver.Firefox()
+# # driver = webdriver.Chrome()
+# driver.maximize_window()
+
+# # Navigate to LinkedIn login page
+# driver.get("https://linkedin.com/login")
+
+# # Wait until the username field is present and then input the username
+# WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "username"))).send_keys(username)
+
+# # Input the password
+# driver.find_element(By.ID, "password").send_keys(password)
+
+# # Click the login button
+# driver.find_element(By.XPATH, "//button[@type='submit']").click()
+
+# driver.implicitly_wait(15)
+
+# def perform_job_search(driver):
+#     for position in positions:
+#         for location in locations:
+#             # Perform job search by position and location
+#             search_box = driver.find_element(By.XPATH, '//*[@id="global-nav-typeahead"]/input')
+#             search_box.clear()
+#             search_box.send_keys(f"{position} in {location}")
+#             search_box.send_keys(Keys.ENTER)
+            
+#             # Click on the "Jobs" button
+#             WebDriverWait(driver, 10).until(
+#                 EC.element_to_be_clickable((By.XPATH, '//button[text()="Jobs"]'))
+#             ).click()
+            
+#             # Apply filters for job types and experience levels
+#             apply_filters(driver, job_types, experience_levels)
+            
+#             # Scrape jobs on the search result page
+#             job_titles_list, job_locations_list, company_names_list, job_links_list = scrape_jobs(driver)
+            
+#             # Apply to jobs
+#             apply_to_jobs(driver, job_titles_list, job_links_list)
+
+# def apply_filters(driver, job_types, experience_levels):
+#     # Apply filters for job types
+#     for job_type in job_types:
+#         driver.find_element(By.XPATH, f'//button[text()="{job_type}"]').click()
+
+#     # Apply filters for experience levels
+#     for level in experience_levels:
+#         driver.find_element(By.XPATH, f'//button[text()="{level}"]').click()
+
+#     # Wait for filters to apply
+#     time.sleep(5)
+
+# def scrape_jobs(driver):
+#     job_titles_list = []
+#     job_links_list = []
+#     job_locations_list = []
+#     company_names_list = []
+#     page_number = 2
+
+#     print('\n---> Job search begins....\n')
+
+#     for i in range(1, 5):  # Scrape first 4 pages
+#         print('Please wait, searching for jobs....')
+
+#         footer = driver.find_element(By.XPATH, '//*[@id="main"]/div/div[1]/div')
+#         scroll_origin = ScrollOrigin.from_element(footer)
+#         for _ in range(6):
+#             ActionChains(driver).scroll_from_origin(scroll_origin, 0, 550).perform()
+#             time.sleep(1)
+
+#         job_titles = driver.find_elements(By.CLASS_NAME, 'full-width.artdeco-entity-lockup__title.ember-view')
+#         for job_title in job_titles:
+#             job_titles_list.append(job_title.text)
+#             job_links_list.append(job_title.find_element(By.LINK_TEXT, job_title.text).get_attribute("href"))
+
+#         job_locations = driver.find_elements(By.CLASS_NAME, 'artdeco-entity-lockup__caption')
+#         for job_location in job_locations:
+#             job_locations_list.append(job_location.text)
+
+#         company_names = driver.find_elements(By.CLASS_NAME, 'job-card-container__primary-description')
+#         for company_name in company_names:
+#             company_names_list.append(company_name.text)
+
+#         try:
+#             page_button = driver.find_element(By.CSS_SELECTOR, f'li[data-test-pagination-page-btn="{page_number}"]').find_element(By.TAG_NAME, 'button')
+#             page_button.click()
+#             page_number += 1
+#             time.sleep(2)
+#         except NoSuchElementException:
+#             break
+
+#     return job_titles_list, job_locations_list, company_names_list, job_links_list
+
+# def apply_to_jobs(driver, job_titles_list, job_links_list):
+#     for i in range(len(job_titles_list)):
+#         job_title = job_titles_list[i]
+#         job_link = job_links_list[i]
+#         print(f"Applying to {job_title} at {job_link}")
+#         driver.get(job_link)
+        
+#         try:
+#             # Locate and click the Easy Apply button
+#             easy_apply_button = WebDriverWait(driver, 10).until(
+#                 EC.element_to_be_clickable((By.XPATH, '//button[contains(@class, "jobs-apply-button")]'))
+#             )
+#             easy_apply_button.click()
+
+#             # Handle the easy apply process (e.g., uploading resume, answering questions)
+#             # Customize this part based on your specific application process
+
+#             # Locate and click the Submit application button
+#             submit_button = WebDriverWait(driver, 10).until(
+#                 EC.element_to_be_clickable((By.XPATH, '//button[text()="Submit application"]'))
+#             )
+#             submit_button.click()
+            
+#             # Wait for a confirmation message or element after submission
+#             WebDriverWait(driver, 10).until(
+#                 EC.presence_of_element_located((By.XPATH, '//div[contains(text(), "Your application has been submitted")]'))
+#             )
+#             print(f"Successfully applied to {job_title}")
+#             time.sleep(2)  # Pause briefly before moving to the next job
+
+#         except NoSuchElementException:
+#             print(f"Easy Apply button not found for {job_title}. Skipping this job.")
+#         except Exception as e:
+#             print(f"An error occurred while applying to {job_title}: {e}")
+
+
+
+# # Start the job search and application process
+# perform_job_search(driver)
+
+# # Pause to keep the browser open for review
+# input("Press Enter to close the browser...")
+
+# # Close the browser
+# driver.quit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def perform_job_search(driver):
+    
+    search_box = driver.find_element(By.XPATH, '//*[@id="global-nav-typeahead"]/input')
+    job_search_domain = input("\nPlease specify the job domain/job role that you are searching for: \n")
+    search_box.send_keys(job_search_domain)
+    search_box.send_keys(Keys.ENTER)
+    
+    time.sleep(5)
+    
+    jobs_button = driver.find_element(By.XPATH, '//button[text()="Jobs"]')
+    jobs_button.click()
+    time.sleep(5)
+    
+    return job_search_domain
+
+
+def scrape_jobs(driver):
+
+    # Now, we are on the jobs page
+    # Each page contains 25 jobs
+    # Thus, we want to visit page number 1,2,3,4
+    # to get the top 100 jobs
+
+    # If we find 'No matching jobs found.' after job search, we print the same
+    # If we do not find 'No matching jobs found.', selenium will throw
+    # 'NoSuchElementException' Exception
+    # Thus, we use exception handling for scraping relevant information
+    try:
+        no_matching_jobs = driver.find_element(By.XPATH, '/html/body/div[5]/div[3]/div[4]/div/div[1]/div/h1')
+        print('\nNo matching jobs found.')
+    except NoSuchElementException:
+
+        job_titles_list = []
+        job_links_list = []
+        job_locations_list = []
+        company_names_list = []
+        page_number = 2
+
+        print('\n---> Job search begins....\n')
+
+        for i in range(1, 5): # 
+
+            print('Please wait, searching for jobs....')
+            
+            # The tag stored in footer variable helps us
+            # scroll at the bottom of the page
+            footer = driver.find_element(By.XPATH, '//*[@id="main"]/div/div[1]/div')
+            scroll_origin = ScrollOrigin.from_element(footer)
+            for i in range(6):
+                ActionChains(driver).scroll_from_origin(scroll_origin, 0, 550).perform()
+                time.sleep(1)
+
+            job_titles = driver.find_elements(By.CLASS_NAME, 'full-width.artdeco-entity-lockup__title.ember-view')
+            # job_titles_list = []
+            for job_title in job_titles:
+                job_titles_list.append(job_title.text)
+
+            # We extract the URL of a job posting
+            # By iterating over all the tags in 'job_titles[]' list
+            # And extracting the link associated with each job title
+
+            # job_links_list = []
+            for job_title in job_titles:
+                job_links_list.append(job_title.find_element(By.LINK_TEXT, job_title.text).get_attribute("href"))        
+
+            job_locations = driver.find_elements(By.CLASS_NAME, 'artdeco-entity-lockup__caption')
+            # job_locations_list = []
+            for job_location in job_locations:
+                job_locations_list.append(job_location.text)        
+
+            company_names = driver.find_elements(By.CLASS_NAME, 'job-card-container__primary-description ')
+            # company_names_list = []
+            for company_name in company_names:
+                company_names_list.append(company_name.text)
+
+            try:
+                page_button = driver.find_element(By.CSS_SELECTOR, f'li[data-test-pagination-page-btn="{page_number}"]').find_element(By.TAG_NAME, 'button')
+                page_button.click()
+                page_number += 1
+                time.sleep(2)
+            except NoSuchElementException:
+                break
+        
+        return job_titles_list, job_locations_list, company_names_list, job_links_list
