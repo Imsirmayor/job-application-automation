@@ -1,7 +1,7 @@
 # Configuration for LinkedIn job search automation
 linkedin:
-    username: "sirmayor3@yahoo.com"
-    password: "awoyam210@"
+    username: "add email"
+    password: "add password"
 
 remote: true  # True for remote jobs, False otherwise
 
