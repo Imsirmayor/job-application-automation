@@ -44,7 +44,22 @@ def scroll_down(driver, num):
     for _ in range(num):
         body_elem.send_keys(Keys.PAGE_DOWN)
         time.sleep(0.1)  # Add a small delay to ensure the page loads
+def search_jobs(driver, job_title, location):
+    #navigate to linkedin job search page
+    driver.get("https://www.linkedin.com/jobs/")
+    driver.implicity_wait(15)
 
+    #enter job title and location
+    job_title_field = driver = driver.find_element(By.ID, "jobs-search-box-keyword-id-ember24")
+    job_title_field.send_keys(job_title)
+
+    location_field = driver.find_element(By.ID, "jobs-search-box-location-id-ember25")
+    location_field.send_keys(location)
+
+    #search btn click
+    driver.find_element(By.XPATH, "//button[@type='submit']").click()
+
+#scroll down to load more job listings
 SCROLL_PAUSE_TIME = 10
 prev_height = driver.execute_script("return document.body.scrollHeight")
 
@@ -58,6 +73,9 @@ for i in range(0, 500):
     if new_height == prev_height and i > 0:
         break
     prev_height = new_height
+
+#Example usage: Search for "Data Scientist" jobs in "New York"
+search_jobs(driver, "Data Scientist", "New York")
 
 # Pause to keep the browser open for review
 input("Press Enter to close the browser...")
